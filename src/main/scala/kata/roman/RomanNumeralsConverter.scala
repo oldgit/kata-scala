@@ -1,10 +1,40 @@
-package kata
+package kata.roman
 
 /**
+ * RomanNumeralsConverter public interface
+ *
  * Converts numbers to and from Roman Numerals
  * @author jon harvey
  */
-object RomanNumeralsConverter {
+abstract class RomanNumeralsConverter {
+
+  /**
+   * Convert an Integer to Roman Numerals
+   *
+   * @param number
+   * @return romanNumerals
+   * @throws IllegalArgumentException if number is not in range: 1-3000
+   */
+  def toRomanNumerals(number: Int): String
+
+  /**
+   * Convert Roman Numerals to an Integer
+   *
+   * The valid roman numerals are:
+   * 'I' -> 1, 'V' -> 5, 'X' -> 10, 'L' -> 50, 'C' -> 100, 'D' -> 500, 'M' -> 1000
+   *
+   * @param romanNumerals
+   * @return number
+   * @throws IllegalArgumentException if roman numerals contains illegal characters, is null or empty
+   */
+  def fromRomanNumerals(romanNumerals: String): Int
+
+}
+
+/**
+ * RomanNumeralsConverter implementation
+ */
+class RomanNumeralsConverterImpl extends RomanNumeralsConverter {
 
   private val romanNumeralArabPairsList = List(
     ("M", 1000), ("CM", 900),
@@ -21,19 +51,6 @@ object RomanNumeralsConverter {
    */
   private val romanNumeralCharMap: Map[Char, Int] =
     romanNumeralArabPairsList.filter(x => (x._1.length == 1)).map(x => (x._1.charAt(0), x._2)).toMap
-
-
-  /**
-   * Return an Integer in Roman Numerals
-   *
-   * @param number
-   * @return romanNumerals
-   * @throws IllegalArgumentException if number is not in range: 1-3000
-   */
-  def toRomanNumerals(number: Int): String = {
-    require(number > 0 && number < 3001, s"number: $number is not in range 1-3000")
-    toRomanNumeralsFoldLeft(number)
-  }
 
   /**
    * Fold left implementation
@@ -54,9 +71,8 @@ object RomanNumeralsConverter {
   /**
    * Recursive implementation
    * @param number
-   * @return
+   * @return romanNumerals
    */
-
   private def toRomanNumeralsRecursive(number: Int): String = {
     def toNumeralsAccumulator(number: Int, romanNumeralsLeft: List[(String, Int)]): String = romanNumeralsLeft.headOption match {
       case None => ""
@@ -65,17 +81,12 @@ object RomanNumeralsConverter {
     toNumeralsAccumulator(number, romanNumeralArabPairsList)
   }
 
-  /**
-   * From Roman Numerals return an Integer
-   *
-   * The valid roman numerals are:
-   * 'I' -> 1, 'V' -> 5, 'X' -> 10, 'L' -> 50, 'C' -> 100, 'D' -> 500, 'M' -> 1000
-   *
-   * @param romanNumerals
-   * @return number
-   * @throws IllegalArgumentException if roman numerals contains illegal characters
-   */
-  def fromRomanNumerals(romanNumerals: String): Int = {
+  override def toRomanNumerals(number: Int) = {
+    require(number > 0 && number < 3001, s"number: $number is not in range 1-3000")
+    toRomanNumeralsFoldLeft(number)
+  }
+
+  override def fromRomanNumerals(romanNumerals: _root_.scala.Predef.String): Int = {
     require(romanNumerals != null && !romanNumerals.isEmpty, "romanNumerals String is null or empty")
     require(romanNumerals.filterNot(romanNumeralCharMap.keySet).isEmpty, s"$romanNumerals contains illegal characters")
     val (result, _) = romanNumerals.map(romanNumeralCharMap).foldLeft((0,0)) {
