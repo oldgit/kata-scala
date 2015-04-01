@@ -1,5 +1,7 @@
 package kata.roman
 
+import scala.annotation.tailrec
+
 /**
  * RomanNumeralsConverter public interface
  *
@@ -69,21 +71,29 @@ class RomanNumeralsConverterImpl extends RomanNumeralsConverter {
   }
 
   /**
-   * Recursive implementation
+   * Tail Recursive implementation
    * @param number
    * @return romanNumerals
    */
   private def toRomanNumeralsRecursive(number: Int): String = {
-    def toNumeralsAccumulator(number: Int, romanNumeralsLeft: List[(String, Int)]): String = romanNumeralsLeft.headOption match {
-      case None => ""
-      case Some((roman, arab)) => roman * (number / arab) + toNumeralsAccumulator(number % arab, romanNumeralsLeft.tail)
+    @tailrec
+    def toNumeralsAccumulator(result: String, number: Int, romanNumeralsLeft: List[(String, Int)]): String = {
+      if (romanNumeralsLeft.isEmpty)
+        return result
+      else {
+        val (roman, arab) = romanNumeralsLeft.head
+        toNumeralsAccumulator(result + (roman * (number / arab)) , number % arab, romanNumeralsLeft.tail)
+      }
     }
-    toNumeralsAccumulator(number, romanNumeralArabPairsList)
+    toNumeralsAccumulator("", number, romanNumeralArabPairsList)
   }
 
   override def toRomanNumerals(number: Int) = {
     require(number > 0 && number < 3001, s"number: $number is not in range 1-3000")
-    toRomanNumeralsFoldLeft(number)
+    if (number % 2 == 0)
+      toRomanNumeralsFoldLeft(number)
+    else
+      toRomanNumeralsRecursive(number)
   }
 
   override def fromRomanNumerals(romanNumerals: _root_.scala.Predef.String): Int = {
