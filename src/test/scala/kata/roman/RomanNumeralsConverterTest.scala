@@ -2,11 +2,23 @@ package kata.roman
 
 import org.specs2.execute.Result
 import org.specs2.mutable.Specification
+import org.specs2.specification.core.Fragment
 
 /**
  * Unit test using specs2
  */
 class RomanNumeralsConverterTest extends Specification {
+
+  /**
+   * converter implementation to test
+   */
+  private val converter: RomanNumeralsConverter = new RomanNumeralsConverterImpl
+
+  /**
+   * valid numbers are in the range 1-3000,
+   * some example invalid numbers
+   */
+  private val invalidNumbers = List(-1, 0, 3001)
 
   /**
    * map of example valid integers to roman numerals
@@ -15,51 +27,45 @@ class RomanNumeralsConverterTest extends Specification {
     1745 -> "MDCCXLV", 33 -> "XXXIII", 45 -> "XLV",
     1999 -> "MCMXCIX", 3000 -> "MMM", 1888 -> "MDCCCLXXXVIII")
 
-  /**
-   * converter implementation to test
-   */
-  private val converter: RomanNumeralsConverter = new RomanNumeralsConverterImpl
-
-  "The RomanNumeralsConverter.toRomanNumerals" should {
-    for (number <- List(-1, 0, 30001)) {
-      s"throw an IllegalArgumentException 'number: $number is not in range 1-3000' for " + number in {
+  "The RomanNumeralsConverter.toRomanNumerals" >> {
+    "throws IllegalArgumentException for invalid numbers: "+invalidNumbers >> {
+      Result.foreach(invalidNumbers) { number =>
         converter.toRomanNumerals(number) must
           throwA[IllegalArgumentException](s"number: $number is not in range 1-3000")
       }
     }
-    for ((k,v) <- validNumberRomanNumerals) {
-      s"convert number: $k to roman numerals: $v" in {
-        converter.toRomanNumerals(k) mustEqual v
-      }
+    Fragment.foreach(validNumberRomanNumerals.toSeq) { kv =>
+      val (k,v) = kv
+      s"converts number: $k to roman numerals: $v" ! {converter.toRomanNumerals(k) mustEqual v}
     }
   }
 
-  "The RomanNumeralsConverter.fromRomanNumerals" should {
+  "The RomanNumeralsConverter.fromRomanNumerals" >> {
     val nullEmptyMessage = "romanNumerals String is null or empty"
-    s"throw an IllegalArgumentException '$nullEmptyMessage' for null" in {
+    s"throws IllegalArgumentException '$nullEmptyMessage' for null" >> {
       converter.fromRomanNumerals(null) must throwA[IllegalArgumentException](nullEmptyMessage)
     }
-    s"throw an IllegalArgumentException '$nullEmptyMessage' for empty String" in {
+    s"throws IllegalArgumentException '$nullEmptyMessage' for empty String" >> {
       converter.fromRomanNumerals("") must throwA[IllegalArgumentException](nullEmptyMessage)
     }
-    for (romanNumeral <- List("A", "B", "Z", "BII")) {
-      s"throw an IllegalArgumentException '$romanNumeral contains illegal characters' for illegal characters like " +
-        romanNumeral in {
+    val invalidRomanNumerals = List("A", "B", "Z", "BII")
+    "throws IllegalArgumentException for invalid roman numerals: "+invalidRomanNumerals >> {
+      Result.foreach(invalidRomanNumerals) { romanNumeral =>
         converter.fromRomanNumerals(romanNumeral) must
           throwA[IllegalArgumentException](s"$romanNumeral contains illegal characters")
       }
     }
-    for ((k,v) <- validNumberRomanNumerals) {
-      s"convert roman numerals: $v to number: $k" in {
-        converter.fromRomanNumerals(v) mustEqual k
-      }
+    Fragment.foreach(validNumberRomanNumerals.toSeq) { kv =>
+      val (k,v) = kv
+      s"converts roman numerals: $v to number: $k" ! {converter.fromRomanNumerals(v) mustEqual k}
     }
   }
 
-  "The RomanNumeralsConverter.toRomanNumerals & then fromRomanNumerals" should {
-    "result in the original number for numbers 1 - 3000" in {
-      Result.unit { (1 to 3000) foreach { number => number mustEqual
-        converter.fromRomanNumerals(converter.toRomanNumerals(number))} }
+  "The RomanNumeralsConverter.toRomanNumerals & then fromRomanNumerals" >> {
+    "results in the original number for numbers 1 - 3000" >> {
+      Result.foreach(1 to 3000) { number =>
+        number mustEqual converter.fromRomanNumerals(converter.toRomanNumerals(number))
+      }
     }
   }
 
