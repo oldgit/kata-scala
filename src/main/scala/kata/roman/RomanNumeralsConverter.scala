@@ -13,7 +13,7 @@ abstract class RomanNumeralsConverter {
   /**
    * Convert an Integer to Roman Numerals
    *
-   * @param number
+   * @param number   a number
    * @return romanNumerals
    * @throws IllegalArgumentException if number is not in range: 1-3000
    */
@@ -25,7 +25,7 @@ abstract class RomanNumeralsConverter {
    * The valid roman numerals are:
    * 'I' -> 1, 'V' -> 5, 'X' -> 10, 'L' -> 50, 'C' -> 100, 'D' -> 500, 'M' -> 1000
    *
-   * @param romanNumerals
+   * @param romanNumerals a set of Roman numerals, e.g. MDCCCLXXXVIII
    * @return number
    * @throws IllegalArgumentException if roman numerals contains illegal characters, is null or empty
    */
@@ -52,13 +52,10 @@ class RomanNumeralsConverterImpl extends RomanNumeralsConverter {
    * 'I' -> 1, 'V' -> 5, 'X' -> 10, 'L' -> 50, 'C' -> 100, 'D' -> 500, 'M' -> 1000
    */
   private val romanNumeralCharMap: Map[Char, Int] =
-    romanNumeralArabPairsList.filter(x => (x._1.length == 1)).map(x => (x._1.charAt(0), x._2)).toMap
+    romanNumeralArabPairsList.filter(x => x._1.length == 1).map(x => (x._1.charAt(0), x._2)).toMap
 
   /**
    * Fold left implementation
-   *
-   * @param number
-   * @return romanNumerals
    */
   private def toRomanNumeralsFoldLeft(number: Int): String = {
     val (result, _) = romanNumeralArabPairsList.foldLeft("", number) ((result, tuple) => {
@@ -72,14 +69,12 @@ class RomanNumeralsConverterImpl extends RomanNumeralsConverter {
 
   /**
    * Tail Recursive implementation
-   * @param number
-   * @return romanNumerals
    */
   private def toRomanNumeralsRecursive(number: Int): String = {
     @tailrec
     def toNumeralsAccumulator(result: String, number: Int, romanNumeralsLeft: List[(String, Int)]): String = {
       if (romanNumeralsLeft.isEmpty)
-        return result
+        result
       else {
         val (roman, arab) = romanNumeralsLeft.head
         toNumeralsAccumulator(result + (roman * (number / arab)) , number % arab, romanNumeralsLeft.tail)
@@ -98,7 +93,8 @@ class RomanNumeralsConverterImpl extends RomanNumeralsConverter {
 
   override def fromRomanNumerals(romanNumerals: _root_.scala.Predef.String): Int = {
     require(romanNumerals != null && !romanNumerals.isEmpty, "romanNumerals String is null or empty")
-    require(romanNumerals.filterNot(romanNumeralCharMap.keySet).isEmpty, s"$romanNumerals contains illegal characters")
+    require(romanNumerals.matches("^M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$"),
+      s"$romanNumerals contains illegal characters or order")
     val (result, _) = romanNumerals.map(romanNumeralCharMap).foldLeft((0,0)) {
       case ((sum, last), curr) =>  (sum + curr + (if (last < curr) -2 * last else 0), curr)
     }

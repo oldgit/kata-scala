@@ -27,38 +27,38 @@ class RomanNumeralsConverterTest extends Specification {
     1745 -> "MDCCXLV", 33 -> "XXXIII", 45 -> "XLV",
     1999 -> "MCMXCIX", 3000 -> "MMM", 1888 -> "MDCCCLXXXVIII")
 
-  "The RomanNumeralsConverter.toRomanNumerals" >> {
-    "throws IllegalArgumentException for invalid numbers: "+invalidNumbers >> {
+  "The RomanNumeralsConverter.toRomanNumerals" should {
+    "throw IllegalArgumentException for invalid numbers: "+invalidNumbers in {
       Result.foreach(invalidNumbers) { number =>
         converter.toRomanNumerals(number) must
           throwA[IllegalArgumentException](s"number: $number is not in range 1-3000")
       }
     }
     Fragment.foreach(validNumberRomanNumerals.toSeq) { kv =>
-      val (k,v) = kv
-      s"converts number: $k to roman numerals: $v" ! {converter.toRomanNumerals(k) mustEqual v}
-    }
+      val (k, v) = kv
+      s"convert $k to $v" ! { converter.toRomanNumerals(k) mustEqual v }
+    } ^ br
   }
 
-  "The RomanNumeralsConverter.fromRomanNumerals" >> {
+  "The RomanNumeralsConverter.fromRomanNumerals" should {
     val nullEmptyMessage = "romanNumerals String is null or empty"
-    s"throws IllegalArgumentException '$nullEmptyMessage' for null" >> {
+    s"throw IllegalArgumentException '$nullEmptyMessage' for null" in {
       converter.fromRomanNumerals(null) must throwA[IllegalArgumentException](nullEmptyMessage)
     }
-    s"throws IllegalArgumentException '$nullEmptyMessage' for empty String" >> {
+    s"throw IllegalArgumentException '$nullEmptyMessage' for empty String" in {
       converter.fromRomanNumerals("") must throwA[IllegalArgumentException](nullEmptyMessage)
     }
-    val invalidRomanNumerals = List("A", "B", "Z", "BII")
-    "throws IllegalArgumentException for invalid roman numerals: "+invalidRomanNumerals >> {
+    val invalidRomanNumerals = List("A", "Z", "IIII", "VXLV", "LXC", "XDCC", "CCMM")
+    "throw IllegalArgumentException for invalid roman numerals: "+invalidRomanNumerals in {
       Result.foreach(invalidRomanNumerals) { romanNumeral =>
         converter.fromRomanNumerals(romanNumeral) must
-          throwA[IllegalArgumentException](s"$romanNumeral contains illegal characters")
+          throwA[IllegalArgumentException](s"$romanNumeral contains illegal characters or order")
       }
     }
     Fragment.foreach(validNumberRomanNumerals.toSeq) { kv =>
       val (k,v) = kv
-      s"converts roman numerals: $v to number: $k" ! {converter.fromRomanNumerals(v) mustEqual k}
-    }
+      s"convert $v to $k" ! {converter.fromRomanNumerals(v) mustEqual k}
+    } ^ br
   }
 
   "The RomanNumeralsConverter.toRomanNumerals & then fromRomanNumerals" >> {
