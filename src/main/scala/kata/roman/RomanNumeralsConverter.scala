@@ -25,9 +25,9 @@ abstract class RomanNumeralsConverter {
    * The valid roman numerals are:
    * 'I' -> 1, 'V' -> 5, 'X' -> 10, 'L' -> 50, 'C' -> 100, 'D' -> 500, 'M' -> 1000
    *
-   * @param romanNumerals a set of Roman numerals, e.g. MDCCCLXXXVIII
+   * @param romanNumerals   a set of Roman numerals, e.g. MDCCCLXXXVIII
    * @return number
-   * @throws IllegalArgumentException if roman numerals contains illegal characters, is null or empty
+   * @throws IllegalArgumentException if roman numerals contains illegal characters or order, is null or empty
    */
   def fromRomanNumerals(romanNumerals: String): Int
 
