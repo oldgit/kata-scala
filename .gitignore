@@ -5,10 +5,8 @@
 # except for .travis.yml
 !.travis.yml
 
-/logs
-/project/project
-/project/target
-/target
+logs/
+target/
 /*.iml
 /*.sublime-project
 /*.sublime-workspace
