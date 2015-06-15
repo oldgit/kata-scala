@@ -8,7 +8,7 @@ import scala.annotation.tailrec
  * Converts numbers to and from Roman Numerals
  * @author jon harvey
  */
-abstract class RomanNumeralsConverter {
+trait RomanNumeralsConverter {
 
   /**
    * Convert an Integer to Roman Numerals
