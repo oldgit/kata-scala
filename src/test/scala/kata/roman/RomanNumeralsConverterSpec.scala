@@ -1,6 +1,7 @@
 package kata.roman
 
 import org.scalatest._
+import RomanNumeralsConverterImpl._
 
 /**
  * FlatSpec using scalatest
@@ -23,9 +24,11 @@ The RomanNumeralsConverter has two operations:
 """}
 
   /**
-   * converter implementation to test
+   * converter implementations to test
    */
-  private val converter: RomanNumeralsConverter = new RomanNumeralsConverterImpl
+  private val converters: Set[RomanNumeralsConverter] = Set(
+    RomanNumeralsConverterImpl(Recursive),
+    RomanNumeralsConverterImpl(FoldLeft))
 
   /**
    * valid numbers are in the range 1-3000,
@@ -42,14 +45,14 @@ The RomanNumeralsConverter has two operations:
 
   "The RomanNumeralsConverter.toRomanNumerals" should
   "throw IllegalArgumentException for numbers not in the range 1-3000: "+invalidNumbers in {
-      for (invalid <- invalidNumbers)
-        an [IllegalArgumentException] should be thrownBy {
-          converter.toRomanNumerals(invalid)
-        }
+    for (converter <- converters; invalid <- invalidNumbers)
+      an [IllegalArgumentException] should be thrownBy {
+        converter.toRomanNumerals(invalid)
+      }
   }
 
   it should "convert some valid numbers: "+validNumberRomanNumerals.keys in {
-    for ((k, v) <- validNumberRomanNumerals) {
+    for (converter <- converters; (k, v) <- validNumberRomanNumerals) {
       converter.toRomanNumerals(k) shouldBe v
     }
   }
@@ -59,13 +62,15 @@ The RomanNumeralsConverter has two operations:
   "The RomanNumeralsConverter.fromRomanNumerals" should
   s"throw IllegalArgumentException '$nullEmptyMessage' for null" in {
     the [IllegalArgumentException] thrownBy {
-      converter.fromRomanNumerals(null)
+      for (converter <- converters)
+        converter.fromRomanNumerals(null)
     } should have message nullEmptyMessage
   }
 
   it should s"throw IllegalArgumentException '$nullEmptyMessage' for empty String" in {
     the [IllegalArgumentException] thrownBy {
-      converter.fromRomanNumerals("")
+      for (converter <- converters)
+        converter.fromRomanNumerals("")
     } should have message nullEmptyMessage
   }
 
@@ -74,20 +79,21 @@ The RomanNumeralsConverter has two operations:
   it should "throw IllegalArgumentException for invalid roman numerals: "+invalidRomanNumerals in {
     for (romanNumeral <- invalidRomanNumerals) {
       the [IllegalArgumentException] thrownBy {
-        converter.fromRomanNumerals(romanNumeral)
+        for (converter <- converters)
+          converter.fromRomanNumerals(romanNumeral)
       } should have message s"requirement failed: $romanNumeral contains illegal characters or order"
     }
   }
 
   it should "convert some valid roman numerals: "+validNumberRomanNumerals.values.toSet in {
-    for ((k, v) <- validNumberRomanNumerals) {
+    for (converter <- converters; (k, v) <- validNumberRomanNumerals) {
       converter.fromRomanNumerals(v) shouldBe k
     }
   }
 
   "The RomanNumeralsConverter.toRomanNumerals & then fromRomanNumerals" should
   "result in the original number for numbers 1-3000" in {
-    for (number <- 1 to 3000) {
+    for (converter <- converters; number <- 1 to 3000) {
       number shouldBe converter.fromRomanNumerals(converter.toRomanNumerals(number))
     }
   }
