@@ -2,7 +2,7 @@ name := """kata-scala"""
 
 version := "0.1-SNAPSHOT"
 
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.7"
 
 testOptions in Test += Tests.Argument("-oM", "-h", "target/html")
 
